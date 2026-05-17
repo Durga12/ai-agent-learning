@@ -1,7 +1,7 @@
 import os
 import openai
 import chromadb
-os.environ["OPENAI_API_KEY"] = "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"
+os.environ["OPENAI_API_KEY"] = "OPEN-API-KEY"
 
 
 java_knowledge = [
