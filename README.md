@@ -57,3 +57,29 @@ pip install openai chromadb tiktoken pytz python-dotenv
 ```
 
 Create a `.env` file:
+
+### ✅ Week 5 — Multi-Agent Learning Coach
+**File:** `agent_team.py`
+
+Two AI agents collaborating through shared state to produce 
+complete Java lessons automatically.
+
+**Architecture:**
+User asks: "teach me multithreading"
+↓
+Planner Agent  → breaks topic into 4 learning steps
+↓
+Executor Agent → executes each step independently (4 LLM calls)
+↓
+Combiner       → formats into complete structured lesson
+↓
+User receives full lesson — concept + code + mistakes + quiz
+
+**Key lessons learned:**
+- Agents communicate through shared state — not direct calls
+- Separation of concerns: Planner never teaches, Executor never plans
+- Multiple focused LLM calls > one overloaded LLM call
+- Same microservices architecture principle applied to AI agents
+- Debugged live with VS Code breakpoints — watched whiteboard fill up
+
+**Tech:** Python · OpenAI API · JSON parsing · Pipeline pattern
