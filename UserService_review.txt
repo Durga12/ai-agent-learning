@@ -1,0 +1,78 @@
+# Final Code Review Report for UserService.java
+
+## Executive Summary
+The code review of `UserService.java` has identified several critical issues, including hardcoded sensitive data and security vulnerabilities that may expose the application to risks. Additionally, various bad practices were noted that could lead to performance degradation and maintainability issues. Immediate attention is required to address these problems.
+
+## Problems Ranked by Severity
+
+### 🔴 Critical
+1. **Hardcoded Credentials**  
+   **Location:** dbUrl, dbUser, dbPass  
+   **Description:** Hardcoded database credentials pose a security risk.  
+   **Fix:** Replace hardcoded values with `System.getenv()` calls to retrieve credentials from environment variables.  
+
+   ```java
+   private String dbUrl = System.getenv("DB_URL");
+   private String dbUser = System.getenv("DB_USER");
+   private String dbPass = System.getenv("DB_PASS");
+   ```
+
+2. **SQL Injection Vulnerability**  
+   **Location:** getUserById() method  
+   **Description:** SQL injection vulnerability due to direct user input in SQL statement.  
+   **Fix:** Implement parameterized queries with `PreparedStatement` to safeguard against SQL injection.  
+
+   ```java
+   String query = "SELECT * FROM users WHERE id = ?";
+   PreparedStatement pstmt = conn.prepareStatement(query);
+   pstmt.setString(1, userId);
+   ```
+
+### 🟠 High
+3. **Database Connection Not Closed**  
+   **Location:** getAllUsers() method  
+   **Description:** Database connection is never closed, leading to resource leaks.  
+   **Fix:** Enclose connections in try-with-resources to ensure they are closed automatically.  
+
+   ```java
+   try (Connection conn = DriverManager.getConnection(dbUrl, dbUser, dbPass);
+        Statement stmt = conn.createStatement()) {
+       // Logic here...
+   }
+   ```
+
+### 🟡 Medium
+4. **Returning Null Instead of Optional**  
+   **Location:** findEmail() method  
+   **Description:** Returning null instead of Optional can lead to null pointer risks for callers.  
+   **Fix:** Change the return type to `Optional<String>`.  
+
+   ```java
+   return Optional.ofNullable(db.get(username));
+   ```
+
+5. **Swallowing Exceptions Silently**  
+   **Location:** deleteUser() method  
+   **Description:** Swallowing exceptions silently can hide issues and make debugging difficult.  
+   **Fix:** Implement logging for exceptions during deletion.  
+
+   ```java
+   } catch (Exception e) {
+       System.err.println("An error occurred while trying to delete the user: " + e.getMessage());
+   }
+   ```
+
+### 🟢 Low
+6. **No Input Validation for User Details**  
+   **Location:** createUser() method  
+   **Description:** No input validation for user details can lead to unexpected states or errors.  
+   **Fix:** Add input validation to check for null or invalid values before user creation.  
+
+   ```java
+   if (name == null || name.trim().isEmpty()) {
+       throw new IllegalArgumentException("Name cannot be null or empty.");
+   }
+   ```
+
+## Final Recommendation
+It is imperative to prioritize addressing the critical and high-severity issues before deploying `UserService.java`. The security vulnerabilities and the risk of resource leaks pose significant threats to the application. Once these are resolved, a follow-up review to implement the medium and low-severity issues should enhance overall code quality and maintainability. Immediate action is recommended to ensure the stability and security of the application.
